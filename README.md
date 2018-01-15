@@ -1,4 +1,4 @@
-#Issue Mapper
+# Issue Mapper
 
 CLI tool for mapping issues across third party platforms.
 
