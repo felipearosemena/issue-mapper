@@ -1,0 +1,80 @@
+const BaseMapping = require('@mappings/base')
+
+class TrelloMapping extends BaseMapping {
+  constructor(client) {
+    super()
+    this.client = client
+  }
+
+  modifiedOn({ dateLastActivity }) {
+    return dateLastActivity
+  }
+
+  title({ name }) {
+    return name
+  }
+
+  checklistMarkdown({ name, checkItems }) {
+
+    const title = `## ${ name }\n`
+    const items = checkItems.map(({ state, name }) =>
+      `* [${ state == 'incomplete' ? ' ' : 'x' }] ${ name }\n`
+    ).join('\n')
+
+    return title + items
+  }
+
+  description({ desc, checklists }) {
+
+    const checklistsMdown =  checklists
+      .map(c => this.checklistMarkdown(c))
+      .join('\n')
+
+    return `${desc}\n${checklistsMdown}`
+  }
+
+  mapComments(commentData) {
+    return commentData.map(({ data, memberCreator }) => {
+      return {
+        text: data.text,
+        author: memberCreator.fullName
+      }
+    })
+  }
+
+  getCardComments(id, callback = () => {}) {
+
+    const opts = { filter: 'commentCard' }
+
+    this.client.get(`/1/cards/${ id }/actions`, opts, (err, commentData) => {
+
+      if(err) {
+        return reject(err)
+      }
+
+      callback(commentData)
+
+    })
+  }
+
+  comments({ id, name }) {
+
+    return new Promise((resolve, reject) => {
+      this.getCardComments(id, commentData =>
+        resolve(this.mapComments(commentData))
+      )
+    })
+
+  }
+
+  attachments({ attachments }) {
+    return new Promise(resolve => resolve(
+      attachments.map(({ url, name }) => {
+        return { url: url, name: name }
+      })
+    ))
+  }
+
+}
+
+module.exports = TrelloMapping
