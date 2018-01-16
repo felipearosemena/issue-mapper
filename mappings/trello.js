@@ -57,7 +57,7 @@ class TrelloMapping extends BaseMapping {
     })
   }
 
-  comments({ id, name }) {
+  comments({ id }) {
 
     return new Promise((resolve, reject) => {
       this.getCardComments(id, commentData =>
