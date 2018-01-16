@@ -48,9 +48,7 @@ class TrelloAdaptor extends BaseAdaptor {
 
         const issues = this.instantiateIssues(cardData)
 
-        Promise
-          .all(issues.map(i => i.loaded))
-          .then(() => resolve(issues))
+        this.issuesLoaded(issues, () => resolve(issues))
 
       })
     })

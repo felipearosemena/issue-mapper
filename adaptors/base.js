@@ -46,6 +46,12 @@ class BaseAdaptor {
     })
   }
 
+  issuesLoaded(issues, onLoaded = () => {}) {
+    Promise
+      .all(issues.map(i => i.loaded))
+      .then(onLoaded)
+  }
+
   getIssues() {}
 
   postIssues() {}
