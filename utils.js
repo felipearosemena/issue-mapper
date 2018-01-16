@@ -1,13 +1,7 @@
 
 module.exports.paramError = p => { throw new Error(`Missing parameter: ${p}`) }
+
 module.exports.envError = p => { throw new Error(`Missing .env variable: ${p}`) }
-
-
-/**
- *
- * @returns {boolean}
- *
- */
 
 module.exports.inArray = (item, array) => array.indexOf(item) > -1
 
