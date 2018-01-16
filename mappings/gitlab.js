@@ -44,7 +44,8 @@ class GitlabMapping extends BaseMapping {
 
   parseAttUrl(att) {
     const { url, base_url } = this.client.options
-    return `${ url }/${ base_url }${ /\((.*?)\)/.exec(att)[1] }`
+    const filepath = /\((.*?)\)/.exec(att)[1]
+    return `${ url }/${ base_url }${ filepath }`
   }
 
   parseAttName(att) {
