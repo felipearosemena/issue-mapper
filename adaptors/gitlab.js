@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const gitlab = require('gitlab')
 const BaseAdaptor = require('@adaptors/base')
+const GitlabMapping = require('@mappings/gitlab')
 const { paramError, envError } = require('@root/utils')
 
 const { GITLAB_TOKEN } = process.env
@@ -26,6 +27,8 @@ class GitlabAdaptor extends BaseAdaptor {
       token: GITLAB_TOKEN
     })
 
+    this.mapping = new GitlabMapping(this.client)
+
   }
 
   uploadUrl() {
@@ -42,21 +45,18 @@ class GitlabAdaptor extends BaseAdaptor {
 
   getIssues() {
 
-    // const { gitlab_project_id } = argv
+    const { gitlab_project_id } = argv
 
-    // this.client.projects.issues
-    //   .list(gitlab_project_id, issuesData => {
+    return new Promise(resolve => {
+      this.client.projects.issues
+        .list(gitlab_project_id, issuesData => {
 
-    //     issuesData.map(issue => {
-    //       this.client.projects.issues.notes
-    //         .all(gitlab_project_id, issue.id, notes => {})
-    //     })
+          const issues = this.instantiateIssues(issuesData)
 
-    //     this.issues = issuesData.map(issue => {
-    //       // return new Issue(issue)
-    //     })
+          this.issuesLoaded(issues, () => resolve(issues))
 
-    //   })
+        })
+    })
 
   }
 
