@@ -18,5 +18,8 @@
     "@root": ".",
     "@adaptors": "./adaptors",
     "@mappings": "./mappings"
+  },
+  "bin" : {
+    "issue-mapper" : "./index.js"
   }
 }
