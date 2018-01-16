@@ -5,11 +5,12 @@ class GitlabMapping extends BaseMapping {
   constructor(client) {
     super()
     this.client = client
+    this.commentsPromise = new Promise(r => r())
   }
 
   modifiedOn({ updated_at = '' }) { return updated_at }
 
-  mapNotes(noteData) {
+  mapComments(noteData) {
     return noteData.map(({ body, author }) => {
       return {
         text: body,
@@ -31,15 +32,51 @@ class GitlabMapping extends BaseMapping {
 
   comments({ id }) {
 
-    return new Promise((resolve, reject) => {
+    this.commentsPromise = new Promise((resolve, reject) => {
       this.getIssueNotes(id, noteData =>
-        resolve(this.mapNotes(noteData))
+        resolve(this.mapComments(noteData))
       )
     })
 
+    return this.commentsPromise
+
   }
 
-  attachments({ attachments = [] }) { return new Promise(r => r(attachments)) }
+  parseAttUrl(att) {
+    const { url, base_url } = this.client.options
+    return `${ url }/${ base_url }${ /\((.*?)\)/.exec(att)[1] }`
+  }
+
+  parseAttName(att) {
+    return /\[(.*?)\]/.exec(att)[1]
+  }
+
+  parseAttachments(string) {
+    return string
+      .match(/\[(.*?)\]\((.*?)\)/g)
+      .map(att => {
+        return {
+          url: this.parseAttUrl(att),
+          name: this.parseAttName(att),
+        }
+      })
+  }
+
+  attachments({ description }) {
+
+    return new Promise(r => {
+      this.commentsPromise
+        .then(comments => {
+
+          let string = description + ' ' + comments
+            .map(c => c.text)
+            .join(' ')
+
+          r(this.parseAttachments(string))
+
+        })
+    })
+  }
 }
 
 module.exports = GitlabMapping
