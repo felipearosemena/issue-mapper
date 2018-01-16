@@ -1,6 +1,6 @@
 const utils = require('@root/utils')
 const x = utils.paramError
-const { moduleExists } = utils
+const { moduleExists, inArray } = utils
 
 function loadAdaptor(name) {
   const Adaptor = require(`@adaptors/${name}`)
@@ -38,12 +38,26 @@ class Mapper {
 
   }
 
+  deDupeIssues(inputIssues, outputIssues) {
+    const outputTitles = outputIssues.map(i => i.title)
+
+    return inputIssues
+      .filter(({ title }) => !inArray(title, outputTitles))
+  }
+
   run() {
 
-    this.input
-      .getIssues()
-      .then(issues => {
-        this.output.postIssues(issues)
+    const { input, output } = this
+
+    Promise
+      .all([
+        input.getIssues(),
+        output.getIssues(),
+      ])
+      .then(([ inputIssues, outputIssues ]) => {
+        output.postIssues(
+          this.deDupeIssues(inputIssues, outputIssues)
+        )
       })
 
   }
