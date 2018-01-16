@@ -9,8 +9,8 @@ const { GITLAB_TOKEN } = process.env
 const { argv } = require('yargs')
 
 class GitlabAdaptor extends BaseAdaptor {
-  constructor() {
-    super()
+  constructor(config = {}) {
+    super(config)
 
     const { gitlab_project_id } = argv
 

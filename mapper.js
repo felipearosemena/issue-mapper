@@ -2,9 +2,9 @@ const utils = require('@root/utils')
 const x = utils.paramError
 const { moduleExists, inArray } = utils
 
-function loadAdaptor(name) {
+function loadAdaptor(name, opts = {}) {
   const Adaptor = require(`@adaptors/${name}`)
-  return new Adaptor()
+  return new Adaptor(opts)
 }
 
 function adaptorExists(name) {
@@ -34,7 +34,7 @@ class Mapper {
     }
 
     this.input = loadAdaptor(i)
-    this.output = loadAdaptor(o)
+    this.output = loadAdaptor(o, { attachments: false })
 
   }
 

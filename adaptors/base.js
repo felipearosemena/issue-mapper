@@ -3,9 +3,14 @@ const fs = require('fs')
 const Issue = require('@root/issue')
 const BaseMapping = require('@mappings/base')
 
+const optionDefaults = {
+  attachments: true
+}
+
 class BaseAdaptor {
-  constructor() {
+  constructor(config = {}) {
     this.mapping = new BaseMapping()
+    this.options = Object.assign({}, optionDefaults, config)
   }
 
   uploadUrl() {

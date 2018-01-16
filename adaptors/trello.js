@@ -9,8 +9,8 @@ const { TRELLO_APP_KEY, TRELLO_USER_TOKEN } = process.env
 const { argv } = require('yargs')
 
 class TrelloAdaptor extends BaseAdaptor {
-  constructor() {
-    super()
+  constructor(config = {}) {
+    super(config)
 
     const { trello_board_id } = argv
 
