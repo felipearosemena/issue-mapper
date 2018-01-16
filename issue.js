@@ -4,9 +4,15 @@ const os = require('os')
 const fs = require('fs')
 const BaseMapping = require('@mappings/base')
 
-class Issue {
-  constructor(data, mapping = new BaseMapping()) {
+const optionDefaults = {
+  attachments: true,
+  comments: true
+}
 
+class Issue {
+  constructor(data, mapping = new BaseMapping(), config = {}) {
+
+    this.options = Object.assign({}, optionDefaults, config)
     this.modifiedOn = mapping.modifiedOn(data)
     this.title = mapping.title(data)
     this.description = mapping.description(data)
@@ -18,16 +24,38 @@ class Issue {
   assignPromisables(data, mapping) {
 
     const self = this
+    const { options } = this
+    const promisables = []
 
-    return [
-      mapping.comments(data).then(comments => self.comments = comments),
-      mapping.attachments(data).then(attachments => {
-        return this.downloadAttachments(attachments)
-          .then(dlAttachmentes => {
-            self.attachments = dlAttachmentes
-          })
-      })
-    ]
+    if(options.comments) {
+
+      const commentPromise = mapping
+        .comments(data)
+        .then(comments => {
+          this.comments = comments
+        })
+
+      promisables.push(commentPromise)
+
+    }
+
+    if(options.attachments) {
+
+      const attachmentsPromise = mapping
+        .attachments(data)
+        .then(attachments =>
+          this
+            .downloadAttachments(attachments)
+            .then(dlAttachmentes => {
+              this.attachments = dlAttachmentes
+            })
+        )
+
+      promisables.push(attachmentsPromise)
+
+    }
+
+    return promisables
 
   }
 
