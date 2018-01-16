@@ -46,9 +46,15 @@ class BaseAdaptor {
   }
 
   instantiateIssues(data) {
+
+    const { options } = this
+
     return data.map(issueData => {
-      return new Issue(issueData, this.mapping)
+      return new Issue(issueData, this.mapping, {
+        attachments: options.attachments
+      })
     })
+
   }
 
   issuesLoaded(issues, onLoaded = () => {}) {
