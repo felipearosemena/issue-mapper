@@ -1,6 +1,6 @@
 {
   "name": "issue-mapper",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "CLI tool for mapping issues across platforms",
   "main": "index.js",
   "repository": "https://github.com/felipearosemena/issue-mapper",
