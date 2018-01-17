@@ -34,7 +34,7 @@ class GitlabAdaptor extends BaseAdaptor {
   uploadUrl() {
     const { url, base_url } = this.client.options
     const { gitlab_project_id } = argv
-    return `${ url }/${ base_url }/projects/${ encodeURIComponent(gitlab_project_id)}/uploads`
+    return `${ url }/${ base_url }/projects/${ encodeURIComponent(gitlab_project_id) }/uploads`
   }
 
   uploadHeaders() {
@@ -48,6 +48,7 @@ class GitlabAdaptor extends BaseAdaptor {
     const { gitlab_project_id } = argv
 
     return new Promise(resolve => {
+
       this.client.projects.issues
         .list(gitlab_project_id, issuesData => {
 
@@ -56,6 +57,7 @@ class GitlabAdaptor extends BaseAdaptor {
           this.issuesLoaded(issues, () => resolve(issues))
 
         })
+
     })
 
   }
@@ -73,30 +75,39 @@ class GitlabAdaptor extends BaseAdaptor {
   }
 
   postIssue(issue) {
-    this.client.issues
-      .create(argv.gitlab_project_id, issue, issueData => {
-        this.postNotes(issueData.id, issue.comments)
-      })
+
+    return new Promise(resolve => {
+      this.client.issues
+        .create(argv.gitlab_project_id, issue, issueData => {
+
+          if(!issueData.id) {
+            throw new Error(`Failed to create issue "${ issue.title }"`)
+          }
+
+          if(issue.comments.length) {
+            this
+              .postNotes(issueData.id, issue.comments)
+              .then(resolve)
+          } else {
+            resolve()
+          }
+        })
+    })
+
   }
 
   postNotes(id, comments) {
-    comments.map(({ text }) => {
-      this.client.notes
-        .create(argv.gitlab_project_id, id, { body: text })
-    })
-  }
 
-  postIssues(issues) {
-
-    issues.map(issue => {
-      const uploadPromises = this.uploadFiles(issue)
-
-      Promise
-        .all(uploadPromises)
-        .then(() => this.postIssue(issue))
-    })
+    return Promise
+      .all(comments.map(({ text }) =>
+        new Promise(resolve => {
+          this.client.notes
+            .create(argv.gitlab_project_id, id, { body: text }, resolve)
+        })
+      ))
 
   }
+
 }
 
 module.exports = GitlabAdaptor

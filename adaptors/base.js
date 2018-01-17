@@ -2,6 +2,7 @@ const request = require('request')
 const fs = require('fs')
 const Issue = require('@root/issue')
 const BaseMapping = require('@mappings/base')
+const { log } = console
 
 const optionDefaults = {
   attachments: true
@@ -65,7 +66,32 @@ class BaseAdaptor {
 
   getIssues() {}
 
-  postIssues() {}
+  loopFinished(i, issues) {
+    return !issues.length || (i + 1) > issues.length
+  }
+
+  postLoop(i, issues) {
+
+    if(this.loopFinished(i, issues)) {
+      return
+    }
+
+    const issue = issues[i]
+    const uploadPromises = this.uploadFiles(issue)
+
+    Promise
+      .all(uploadPromises)
+      .then(() => this.postIssue(issue))
+      .then(() => {
+        log(`Created issue #${i + 1}: ${ issue.title }`)
+        this.postLoop(i + 1, issues)
+      })
+  }
+
+  postIssues(issues) {
+    log(`${ issues.length } issues to create`)
+    this.postLoop(0, issues)
+  }
 }
 
 module.exports = BaseAdaptor
