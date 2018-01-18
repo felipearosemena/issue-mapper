@@ -64,7 +64,31 @@ class BaseAdaptor {
       .then(onLoaded)
   }
 
-  getIssues() {}
+  queryIssues() {
+    return new Promise(r => r([]))
+  }
+  getIssues() {
+
+    log(`Getting ${ this.options.type } issues from ${ this.name }`)
+
+    return new Promise(resolve => {
+      this
+        .queryIssues()
+        .then(data => {
+          log(`${ data.length } ${ this.name } issues found`)
+
+          if(this.options.type == 'input') {
+            log(`Preparing to download attachments & querying additional data`)
+          }
+
+          const issues = this.instantiateIssues(data)
+          this.issuesLoaded(issues, () => {
+            log(`${ issues.length } ${ this.name } issues loaded`)
+            resolve(issues)
+          })
+        })
+    })
+  }
 
   loopFinished(i, issues) {
     return !issues.length || (i + 1) > issues.length

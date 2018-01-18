@@ -43,7 +43,7 @@ class GitlabAdaptor extends BaseAdaptor {
     }
   }
 
-  getIssues() {
+  queryIssues() {
 
     const { gitlab_project_id } = argv
 
@@ -51,11 +51,7 @@ class GitlabAdaptor extends BaseAdaptor {
 
       this.client.projects.issues
         .list(gitlab_project_id, issuesData => {
-
-          const issues = this.instantiateIssues(issuesData)
-
-          this.issuesLoaded(issues, () => resolve(issues))
-
+          resolve(issuesData)
         })
 
     })

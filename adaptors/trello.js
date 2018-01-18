@@ -31,7 +31,7 @@ class TrelloAdaptor extends BaseAdaptor {
 
   }
 
-  getIssues() {
+  queryIssues() {
 
     const { trello_board_id } = argv
 
@@ -43,17 +43,13 @@ class TrelloAdaptor extends BaseAdaptor {
 
     return new Promise(resolve => {
       this.client.get(`/1/boards/${ trello_board_id }/cards`, opts, (err, cardData) => {
-
         if (err) throw err
-
-        const issues = this.instantiateIssues(cardData)
-
-        this.issuesLoaded(issues, () => resolve(issues))
-
+        resolve(cardData)
       })
     })
 
   }
+
 }
 
 module.exports = TrelloAdaptor
