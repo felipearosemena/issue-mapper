@@ -2,7 +2,7 @@ const request = require('request')
 const fs = require('fs')
 const Issue = require('@root/issue')
 const BaseMapping = require('@mappings/base')
-const { log } = console
+const { log } = require('@root/utils')
 
 const optionDefaults = {
   attachments: true
@@ -11,6 +11,7 @@ const optionDefaults = {
 class BaseAdaptor {
   constructor(config = {}) {
     this.mapping = new BaseMapping()
+    this.name = 'Base'
     this.options = Object.assign({}, optionDefaults, config)
   }
 
@@ -51,9 +52,7 @@ class BaseAdaptor {
     const { options } = this
 
     return data.map(issueData => {
-      return new Issue(issueData, this.mapping, {
-        attachments: options.attachments
-      })
+      return new Issue(issueData, this.mapping, options)
     })
 
   }
@@ -107,13 +106,13 @@ class BaseAdaptor {
       .all(uploadPromises)
       .then(() => this.postIssue(issue))
       .then(() => {
-        log(`Created issue #${i + 1}: ${ issue.title }`)
+        log(`Created issue "${ issue.title }" on ${ this.name }`)
         this.postLoop(i + 1, issues)
       })
   }
 
   postIssues(issues) {
-    log(`${ issues.length } issues to create`)
+    log(`${ issues.length } issue${issues.length == 1 ? '' : 's' } to create`)
     this.postLoop(0, issues)
   }
 }
