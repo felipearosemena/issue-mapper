@@ -28,6 +28,7 @@ class GitlabAdaptor extends BaseAdaptor {
     })
 
     this.mapping = new GitlabMapping(this.client)
+    this.name = 'Gitlab'
 
   }
 

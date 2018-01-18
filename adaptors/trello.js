@@ -28,6 +28,7 @@ class TrelloAdaptor extends BaseAdaptor {
 
     this.client  = new Trello(TRELLO_APP_KEY, TRELLO_USER_TOKEN)
     this.mapping = new TrelloMapping(this.client)
+    this.name = 'Trello'
 
   }
 
