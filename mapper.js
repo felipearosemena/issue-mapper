@@ -1,6 +1,6 @@
 const utils = require('@root/utils')
 const x = utils.paramError
-const { moduleExists, inArray } = utils
+const { moduleExists, inArray, log } = utils
 
 function loadAdaptor(name, opts = {}) {
   const Adaptor = require(`@adaptors/${name}`)
@@ -33,12 +33,19 @@ class Mapper {
       throw new Error(`Invalid output adaptor: ${o}`)
     }
 
-    this.input = loadAdaptor(i)
-    this.output = loadAdaptor(o, { attachments: false })
+    this.input = loadAdaptor(i, { type: 'input' })
+    this.output = loadAdaptor(o, {
+      attachments: false,
+      comments: false,
+      type: 'output'
+    })
 
   }
 
   deDupeIssues(inputIssues, outputIssues) {
+
+    log(`Removing duplicates`)
+
     const outputTitles = outputIssues.map(i => i.title)
 
     return inputIssues
@@ -48,16 +55,19 @@ class Mapper {
   run() {
 
     const { input, output } = this
+    const inputPromise = input.getIssues()
+    const outputPromise = inputPromise.then(() => output.getIssues())
 
     Promise
       .all([
-        input.getIssues(),
-        output.getIssues(),
+        inputPromise,
+        outputPromise,
       ])
       .then(([ inputIssues, outputIssues ]) => {
-        output.postIssues(
-          this.deDupeIssues(inputIssues, outputIssues)
-        )
+
+        const deDuped = this.deDupeIssues(inputIssues, outputIssues)
+
+        output.postIssues(deDuped)
       })
 
   }
