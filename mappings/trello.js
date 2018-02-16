@@ -70,7 +70,7 @@ class TrelloMapping extends BaseMapping {
   attachments({ attachments }) {
     return new Promise(resolve => resolve(
       attachments.map(({ url, name, isUpload }) => {
-        return { url: url, name: name, isUpload }
+        return { url: url, name: name, isUpload: isUpload }
       })
     ))
   }
