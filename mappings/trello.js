@@ -66,11 +66,11 @@ class TrelloMapping extends BaseMapping {
     })
 
   }
-
+  //Here get the isUpload parameter of each attachment
   attachments({ attachments }) {
     return new Promise(resolve => resolve(
-      attachments.map(({ url, name }) => {
-        return { url: url, name: name }
+      attachments.map(({ url, name, isUpload }) => {
+        return { url: url, name: name, isUpload }
       })
     ))
   }
