@@ -1,4 +1,5 @@
 const BaseMapping = require('@mappings/base')
+const { log } = require('@root/utils')
 
 class TrelloMapping extends BaseMapping {
   constructor(client) {
@@ -58,7 +59,6 @@ class TrelloMapping extends BaseMapping {
   }
 
   comments({ id }) {
-
     return new Promise((resolve, reject) => {
       this.getCardComments(id, commentData =>
         resolve(this.mapComments(commentData))
@@ -69,8 +69,8 @@ class TrelloMapping extends BaseMapping {
   //Here get the isUpload parameter of each attachment
   attachments({ attachments }) {
     return new Promise(resolve => resolve(
-      attachments.map(({ url, name, isUpload }) => {
-        return { url: url, name: name, isUpload: isUpload }
+      attachments.filter((attachment) => attachment.isUpload == true).map(({ url, name }) => {
+          return { url: url, name: name }
       })
     ))
   }
